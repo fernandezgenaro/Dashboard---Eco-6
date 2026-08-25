@@ -12,6 +12,62 @@
     </div>
   </div>
 
+  <!-- Tabla DataTables con Botón y Alertas -->
+  <div class="card p-3">
+    <!-- Encabezado con el botón Nuevo Usuario -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Lista de Usuarios</h3>
+      <a href="{{ route('users.create') }}" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Nuevo Usuario
+      </a>
+    </div>
+
+    <!-- Mensaje de éxito si se creó, actualizó o eliminó un usuario -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    <table id="miTabla" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($users as $user)
+                <tr>
+                    <td>{{ $user->id }}</td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        <!-- Botón Editar -->
+                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+
+                        <!-- Botón Eliminar -->
+                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+  </div>
+
   <!-- Tarjetas informativas (Small boxes) -->
   <div class="row">
     <div class="col-lg-3 col-6">
@@ -67,3 +123,15 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#miTabla').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            }
+        });
+    });
+</script>
+@endpush
