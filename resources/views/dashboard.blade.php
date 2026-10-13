@@ -14,12 +14,14 @@
 
   <!-- Tabla DataTables con Botón y Alertas -->
   <div class="card p-3">
-    <!-- Encabezado con el botón Nuevo Usuario -->
+    <!-- Encabezado con el botón Nuevo Usuario (solo visible con permiso de crear usuarios) -->
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="mb-0">Lista de Usuarios</h3>
-      <a href="{{ route('users.create') }}" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Nuevo Usuario
-      </a>
+      @can('crear usuarios')
+        <a href="{{ route('users.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Usuario
+        </a>
+      @endcan
     </div>
 
     <!-- Mensaje de éxito si se creó, actualizó o eliminó un usuario -->
@@ -38,7 +40,9 @@
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Email</th>
-                <th>Acciones</th>
+                @canany(['editar usuarios', 'borrar usuarios'])
+                    <th>Acciones</th>
+                @endcanany
             </tr>
         </thead>
         <tbody>
@@ -47,21 +51,27 @@
                     <td>{{ $user->id }}</td>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
+                    @canany(['editar usuarios', 'borrar usuarios'])
                     <td>
-                        <!-- Botón Editar -->
-                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
+                        <!-- Botón Editar (Solo Admin) -->
+                        @can('editar usuarios')
+                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        @endcan
 
-                        <!-- Botón Eliminar -->
-                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                        </form>
+                        <!-- Botón Eliminar (Solo Admin) -->
+                        @can('borrar usuarios')
+                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </form>
+                        @endcan
                     </td>
+                    @endcanany
                 </tr>
             @endforeach
         </tbody>
